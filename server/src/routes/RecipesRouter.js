@@ -3,7 +3,7 @@ const axios = require('axios');
 
 //get a list of recipes
 router.get('/recipes', async (req, res) => {
-    const { query } = req.query;
+    const { query, offset = 0, number = 10 } = req.query;
     try {
         const response = await axios.get('https://api.spoonacular.com/recipes/complexSearch', {
             params: {
@@ -11,7 +11,8 @@ router.get('/recipes', async (req, res) => {
                 query,
                 addRecipeNutrition: true,
                 includeNutrition: false,
-                number: 10,
+                offset: parseInt(offset, 10),
+                number: parseInt(number, 10),
             }
         });
         res.json(response.data);
@@ -19,7 +20,6 @@ router.get('/recipes', async (req, res) => {
         console.error("Error when accessing Spoonacular API: ", error);
         res.status(500).json({ message: "Error accessing the recipe API", details: error.message });
     }
-    
 });
 
 module.exports = router;
