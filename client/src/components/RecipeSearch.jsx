@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from './Button';
 import Pagination from './Pagination';
 import RecipeCard from './RecipeCard';
 import { debounce } from '../utils/debounce';
 
-const debouncedSearch = debounce((func, page) => func(page), 300);
+const debouncedSearch = debounce((func, query, page) => func(query, page), 300);
 
 export default function RecipeSearch() {
+    const navigate = useNavigate();
     const [query, setQuery] = useState('');
     const [recipes, setRecipes] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -15,8 +17,7 @@ export default function RecipeSearch() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [cache, setCache] = useState({});
-
-    const searchRecipesRef = useRef(null);
+    const [searchTriggered, setSearchTriggered] = useState(false);
 
     const sortRecipes = (recipes, option) => {
         if (option === 'calories-asc') {
@@ -27,7 +28,7 @@ export default function RecipeSearch() {
         return recipes;
     };
 
-    const searchRecipes = useCallback(async (page = 1) => {
+    const searchRecipes = useCallback(async (query, page = 1) => {
         if (!query) return;
         setLoading(true);
         setError('');
@@ -59,53 +60,61 @@ export default function RecipeSearch() {
         } finally {
             setLoading(false);
         }
-    }, [query, sortOption, cache]);
-
-    searchRecipesRef.current = searchRecipes;
+    }, [sortOption, cache]);
 
     const handleSearch = () => {
-        debouncedSearch(searchRecipesRef.current, page);
+        setSearchTriggered(true);
+        searchRecipes(query, 1);
         setPage(1);
     };
 
     const handleSortChange = (e) => {
         setSortOption(e.target.value);
-        setPage(1);
+        if (searchTriggered) {
+            searchRecipes(query, 1);
+        }
     };
 
     useEffect(() => {
-        searchRecipesRef.current(page);
+        if (searchTriggered) {
+            debouncedSearch(searchRecipes, query, page);
+        }
         window.scrollTo(0, 0);
-    }, [page, sortOption]);
+    }, [page, sortOption, searchRecipes, query, searchTriggered]);
 
     return (
-        <div className="p-4">
-            <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Enter a recipe..."
-                className="input-field p-2 text-gray-700 border border-gray-300 m-1 rounded shadow"
-            />
-            <select value={sortOption} onChange={handleSortChange} className="p-2 border border-gray-300 m-1 rounded shadow">
-                <option value="">Sort by...</option>
-                <option value="calories-asc">Calories (Lowest to Highest)</option>
-                <option value="calories-desc">Calories (Highest to Lowest)</option>
-            </select>
-            <Button onClick={handleSearch}>Search</Button>
-            {loading && <p>Loading...</p>}
-            {error && <p className="text-red-500">{error}</p>}
-            {recipes.length > 0 && (
-                <>
-                    <ul className="mt-6">
-                        {recipes.map((recipe, index) => (
-                            <RecipeCard key={index} recipe={recipe} />
-                        ))}
-                    </ul>
-                    <Pagination page={page} setPage={setPage} totalPages={totalPages} />
-                </>
-            )}
+        <div className="container mx-auto p-4">
+            <div className="mb-4 flex flex-col items-center">
+                <div className="flex space-x-2">
+                    <input
+                        type="text"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                        placeholder="Enter a recipe..."
+                        className="input-field p-2 text-gray-700 border border-gray-300 rounded shadow w-64"
+                    />
+                    <select value={sortOption} onChange={handleSortChange} className="p-2 border border-gray-300 rounded shadow">
+                        <option value="">Sort by...</option>
+                        <option value="calories-asc">Calories (Lowest to Highest)</option>
+                        <option value="calories-desc">Calories (Highest to Lowest)</option>
+                    </select>
+                    <Button onClick={handleSearch}>Search</Button>
+                    <Button onClick={() => navigate('/saved')}>View Saved Recipes</Button>
+                </div>
+                {loading && <p>Loading...</p>}
+                {error && <p className="text-red-500">{error}</p>}
+                {recipes.length > 0 && (
+                    <>
+                        <ul className="mt-6">
+                            {recipes.map((recipe, index) => (
+                                <RecipeCard key={index} recipe={recipe} />
+                            ))}
+                        </ul>
+                        <Pagination page={page} setPage={setPage} totalPages={totalPages} />
+                    </>
+                )}
+            </div>
         </div>
     );
 }

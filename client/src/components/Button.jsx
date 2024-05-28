@@ -14,7 +14,7 @@ function Button({ onClick, children, className = '' }) {
 Button.propTypes = {
     onClick: PropTypes.func.isRequired,
     children: PropTypes.node.isRequired,
-    className: PropTypes.string
+    className: PropTypes.string,
 };
 
 export default Button;
