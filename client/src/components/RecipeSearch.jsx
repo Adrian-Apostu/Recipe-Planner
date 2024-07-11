@@ -41,7 +41,7 @@ export default function RecipeSearch() {
         }
 
         try {
-            const response = await fetch(`/api/recipes?query=${encodeURIComponent(query)}&offset=${(page - 1) * 10}&number=10`);
+            const response = await fetch(`https://recipe-planner-app-3047e398bb77.herokuapp.com/api/recipes?query=${encodeURIComponent(query)}&offset=${(page - 1) * 10}&number=10`);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
