@@ -40,3 +40,14 @@
 .read-the-docs {
   color: #888;
 }
+
+.message-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 1rem; /* Adjust space below the search bar */
+}
+
+.center-text {
+  text-align: center;
+}

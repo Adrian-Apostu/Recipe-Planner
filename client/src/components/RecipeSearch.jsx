@@ -83,38 +83,46 @@ export default function RecipeSearch() {
     }, [page, sortOption, searchRecipes, query, searchTriggered]);
 
     return (
-        <div className="container mx-auto p-4">
-            <div className="mb-4 flex flex-col items-center">
-                <div className="flex space-x-2">
-                    <input
-                        type="text"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                        placeholder="Enter a recipe..."
-                        className="input-field p-2 text-gray-700 border border-gray-300 rounded shadow w-64"
-                    />
-                    <select value={sortOption} onChange={handleSortChange} className="p-2 border border-gray-300 rounded shadow">
-                        <option value="">Sort by...</option>
-                        <option value="calories-asc">Calories (Lowest to Highest)</option>
-                        <option value="calories-desc">Calories (Highest to Lowest)</option>
-                    </select>
-                    <Button onClick={handleSearch}>Search</Button>
-                    <Button onClick={() => navigate('/saved')}>View Saved Recipes</Button>
-                </div>
-                {loading && <p>Loading...</p>}
-                {error && <p className="text-red-500">{error}</p>}
-                {recipes.length > 0 && (
-                    <>
-                        <ul className="mt-6">
-                            {recipes.map((recipe, index) => (
-                                <RecipeCard key={index} recipe={recipe} />
-                            ))}
-                        </ul>
-                        <Pagination page={page} setPage={setPage} totalPages={totalPages} />
-                    </>
-                )}
-            </div>
-        </div>
+<div className="container mx-auto p-4">
+    <div className="mb-4 flex flex-col sm:flex-row items-center justify-center sm:space-x-2">
+        <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            placeholder="Enter a recipe..."
+            className="input-field p-2 text-gray-700 border border-gray-300 rounded shadow w-full sm:w-64 mb-2 sm:mb-0"
+        />
+        <select
+            value={sortOption}
+            onChange={handleSortChange}
+            className="p-2 border border-gray-300 rounded shadow w-full sm:w-auto mb-2 sm:mb-0"
+        >
+            <option value="">Sort by...</option>
+            <option value="calories-asc">Calories (Lowest to Highest)</option>
+            <option value="calories-desc">Calories (Highest to Lowest)</option>
+        </select>
+        <Button className="w-full sm:w-auto mb-2 sm:mb-0" onClick={handleSearch}>Search</Button>
+        <Button className="w-full sm:w-auto" onClick={() => navigate('/saved')}>View Saved Recipes</Button>
+    </div>
+    
+    <div className="flex justify-center mt-4">
+        {loading && <p className="text-center">Loading...</p>}
+        {error && <p className="text-center text-red-500">{error}</p>}
+    </div>
+
+    {recipes.length > 0 && (
+        <>
+            <ul className="mt-6">
+                {recipes.map((recipe, index) => (
+                    <RecipeCard key={index} recipe={recipe} />
+                ))}
+            </ul>
+            <Pagination page={page} setPage={setPage} totalPages={totalPages} />
+        </>
+    )}
+</div>
+
+    
     );
 }
